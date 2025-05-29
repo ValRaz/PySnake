@@ -1,0 +1,4 @@
+arcade==3.2.0   # 2D game framework for Python, used for windowing, drawing, and input
+
+Pillow>=9.0.0   # For the PIL.Image API used in extract_sprites.py
+

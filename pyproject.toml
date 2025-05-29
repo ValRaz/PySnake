@@ -1,0 +1,15 @@
+[project]
+name = "pysnake"
+version = "0.1.0"
+description = "A grid-based Snake game built with Python and Arcade"
+readme = "README.md"
+requires-python = ">=3.11"
+# If you ever upload to PyPI, this metadata will be useful
+
+dependencies = [
+  "arcade==3.2.0",
+  "Pillow>=9.0.0",
+]
+
+[project.scripts]
+pysnake = "src.main:main"
