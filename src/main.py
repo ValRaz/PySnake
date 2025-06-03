@@ -1,6 +1,6 @@
 import random
 import arcade
-from src.snake import Snake
+from snake import Snake
 
 # Sets up screen and grid cell sizes.
 SCREEN_WIDTH = 800
@@ -20,8 +20,53 @@ class GameWindow(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
         arcade.set_background_color(arcade.color.BLACK)
+
+        # Creates Text objects for Score, Level, and Game Over displays
+        self.score_text = arcade.Text(
+        text="Score: 0",
+        x=10,
+        y=SCREEN_HEIGHT - 20,
+        color=arcade.color.WHITE,
+        font_size=20
+        )
+
+        self.level_text = arcade.Text(
+            text="Level: 1",
+            x=SCREEN_WIDTH - 80,
+            y=SCREEN_HEIGHT - 20,
+            color=arcade.color.WHITE,
+            font_size=20
+        )
+
+        self.game_over_text = arcade.Text(
+            text="GAME OVER",
+            x=SCREEN_WIDTH / 2,
+            y=SCREEN_HEIGHT / 2,
+            color=arcade.color.RED,
+            font_size=36,
+            anchor_x="center"
+        )
+
+        self.restart_text = arcade.Text(
+            text="Press R to Restart",
+            x=SCREEN_WIDTH / 2,
+            y=(SCREEN_HEIGHT / 2) - 40,
+            color=arcade.color.WHITE,
+            font_size=26,
+            anchor_x="center"
+        )
+
+
         # Tan grass texture
         self.grass_texture = arcade.load_texture("assets/sprites/sprite_3_3.png")
+
+        #Game Over flag
+        self.game_over = False
+
+        self.score = 0
+        self.level = 1
+        self.next_level_threshold = 5
+        self.level_increment = 10
 
         # Calculates grid dimensions and initializes snake at start position (middle)
         cols = SCREEN_WIDTH // GRID_SIZE
@@ -149,9 +194,20 @@ class GameWindow(arcade.Window):
         arcade.draw_sprite(self.food_sprite)
         self.segment_sprites.draw()
 
+        # Updates and draws score and level
+        self.score_text.text = f"Score: {self.score}"
+        self.level_text.text = f"Level: {self.level}"
+        self.score_text.draw()
+        self.level_text.draw()
+
+        # Draws game over message
+        if self.game_over:
+            self.game_over_text.draw()
+            self.restart_text.draw()
+
     # Moves the snake and updates segment sprites
     def on_update(self, delta_time):
-        if self.snake.direction is None:
+        if self.game_over or self.snake.direction is None:
             return
 
         self.time_since_move += delta_time
@@ -165,12 +221,53 @@ class GameWindow(arcade.Window):
         if self.snake.segments[0] == self.food_position:
             self.snake.grow_flag = True
             self.place_food()
+            self.score += 1
 
+        # Checks for wall collision
+        head_row, head_col = self.snake.segments[0]
+        max_rows = SCREEN_HEIGHT // GRID_SIZE
+        max_cols = SCREEN_WIDTH // GRID_SIZE
+        if not (0 <= head_row < max_rows) or not (0 <= head_col < max_cols):
+            self.game_over = True
+            return
+
+        # Checks for self-collision
+        if self.snake.segments[0] in self.snake.segments[1:]:
+            self.game_over = True
+            return
+
+        # Check if score meets or exceeds the next level threshold
+        if self.score >= self.next_level_threshold:
+            self.level += 1
+            self.move_interval = max(0.05, self.move_interval - 0.01)
+            self.next_level_threshold += self.level_increment
+
+        # Updates the snake's segments sprites per movement
         self.update_segment_sprites()
 
-    # Handles arrow-key input and passes it to the snake
+    # Resets grid and snake to start position
+    def reset_game(self):
+        cols = SCREEN_WIDTH // GRID_SIZE
+        rows = SCREEN_HEIGHT // GRID_SIZE
+        start_row = rows // 2
+        start_col = cols // 2
+        self.snake = Snake((start_row, start_col))
+        self.segment_sprites = arcade.SpriteList()
+        self.place_food()
+        self.update_segment_sprites()
+        self.time_since_move = 0.0
+        self.move_interval = 0.15
+        self.game_over = False
+        self.score = 0
+        self.level = 1
+        self.next_level_threshold = 5
+
+    # Handles reset or arrow-key, and passes it to the grid and snake
     def on_key_press(self, key, modifiers):
-        self.snake.change_direction(key)
+        if key == arcade.key.R:
+            self.reset_game()
+        else:
+            self.snake.change_direction(key)
 
 def main():
     window = GameWindow()
