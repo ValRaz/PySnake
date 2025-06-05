@@ -2,8 +2,7 @@ import unittest
 import arcade
 from arcade.key import RIGHT, LEFT, UP, DOWN, R
 from src.main import GameWindow, GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, TOP_MARGIN
-from src.snake import Snake
-
+from snake import Snake
 
 class TestCollisionAndGameOver(unittest.TestCase):
     # Tests set up game window in Play state with dummy music player
@@ -20,7 +19,6 @@ class TestCollisionAndGameOver(unittest.TestCase):
 
     # Tests top wall collision
     def test_wall_collision_top(self):
-
         max_rows = (SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE - 3
         head_row = max_rows - 1
         head_col = 0
@@ -29,20 +27,21 @@ class TestCollisionAndGameOver(unittest.TestCase):
         self.window.time_since_move = self.window.move_interval
         self.window.on_update(delta_time=self.window.move_interval)
         self.assertEqual(self.window.game_state, "GAME_OVER")
-        self.assertTrue(self.window.music_player.paused)
+        self.assertIsNone(self.window.music_player)
 
     # Tests left, bottom and right wall collisions
     def test_walls_collision(self):
         w = self.window
+
+        # Tests left wall collision
         w.snake.direction = LEFT
         w.snake.segments = [(0, 0)]
         w.time_since_move = w.move_interval
         w.on_update(delta_time=w.move_interval)
         self.assertEqual(w.game_state, "GAME_OVER")
 
-        # Resets and tests bottom collision
+        # Reset and test bottom wall collision
         self.setUp()
-        max_rows = (SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE - 3
         w = self.window
         w.snake.direction = DOWN
         w.snake.segments = [(0, 0)]
@@ -50,20 +49,20 @@ class TestCollisionAndGameOver(unittest.TestCase):
         w.on_update(delta_time=w.move_interval)
         self.assertEqual(w.game_state, "GAME_OVER")
 
-        # Resets and tests right collision
+        # Reset and test right wall
         self.setUp()
-        max_cols = SCREEN_WIDTH // GRID_SIZE - 3
         w = self.window
+        max_cols = SCREEN_WIDTH // GRID_SIZE - 3
         w.snake.direction = RIGHT
         w.snake.segments = [(0, max_cols - 1)]
         w.time_since_move = w.move_interval
         w.on_update(delta_time=w.move_interval)
         self.assertEqual(w.game_state, "GAME_OVER")
 
-    # Tests self collision
+    # Tests self‐collision
     def test_self_collision(self):
         w = self.window
-        seq = [(2,2), (2,3), (3,3), (3,2), (2,2)]
+        seq = [(2, 2), (2, 3), (3, 3), (3, 2), (2, 2)]
         w.snake.segments = seq.copy()
         w.snake.direction = RIGHT
         w.time_since_move = w.move_interval
@@ -83,7 +82,7 @@ class TestCollisionAndGameOver(unittest.TestCase):
         self.assertEqual(w.level, 1)
         self.assertAlmostEqual(w.move_interval, 0.15)
 
-    # Tests no collision play
+    # Tests that play state remains active when no collisions occur.
     def test_play_without_collisions(self):
         w = self.window
         rows = (SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE - 3

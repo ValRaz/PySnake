@@ -1,6 +1,6 @@
 import unittest
 from arcade.key import RIGHT
-from src.snake import Snake
+from snake import Snake
 from src.main import GameWindow, GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
 
 class TestGrowthAndFood(unittest.TestCase):

@@ -80,13 +80,13 @@ class GameWindow(arcade.Window):
             anchor_x="center"
         )
 
-        # Tan grass texture for empty cells
+        # Grass texture for empty cells
         self.grass_texture = arcade.load_texture("assets/sprites/sprite_3_3.png")
 
         # Sets game state
         self.game_state = "START"
 
-        # Score / Level / Thresholds and level up banner and sound duration
+        # Score / Level / Thresholds and level up banner duration
         self.score = 0
         self.level = 1
         self.next_level_threshold = 5
@@ -95,7 +95,7 @@ class GameWindow(arcade.Window):
         self.level_banner_timer = 0.0
         self.level_banner_duration = 1.0
 
-        # Calculates grid dimensions and initializes snake at start position
+        # Calculates grid dimensions and initializes snake at start position (middle)
         cols = SCREEN_WIDTH // GRID_SIZE
         rows = (SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE - 3
         start_row = rows // 2
@@ -107,14 +107,14 @@ class GameWindow(arcade.Window):
         self.textures = {}
         for idx in range(4):
             self.textures[("head", idx)] = arcade.load_texture(f"assets/sprites/sprite_0_{idx}.png")
-        self.textures[("body_h", None)] = arcade.load_texture("assets/sprites/sprite_1_0.png")
-        self.textures[("body_v", None)] = arcade.load_texture("assets/sprites/sprite_1_1.png")
-        self.textures[("corner", (-1,0,0,1))] = arcade.load_texture("assets/sprites/sprite_2_0.png")
-        self.textures[("corner", (1,0,0,1))]  = arcade.load_texture("assets/sprites/sprite_2_1.png")
-        self.textures[("corner", (1,0,0,-1))] = arcade.load_texture("assets/sprites/sprite_2_2.png")
-        self.textures[("corner", (-1,0,0,-1))]= arcade.load_texture("assets/sprites/sprite_2_3.png")
-        self.textures[("tail_h", None)] = arcade.load_texture("assets/sprites/sprite_3_0.png")
-        self.textures[("tail_v", None)] = arcade.load_texture("assets/sprites/sprite_3_1.png")
+        self.textures[("body_h", None)]   = arcade.load_texture("assets/sprites/sprite_1_0.png")
+        self.textures[("body_v", None)]   = arcade.load_texture("assets/sprites/sprite_1_1.png")
+        self.textures[("corner", (-1,0,0,1))]  = arcade.load_texture("assets/sprites/sprite_2_0.png")
+        self.textures[("corner", (1,0,0,1))]   = arcade.load_texture("assets/sprites/sprite_2_1.png")
+        self.textures[("corner", (1,0,0,-1))]  = arcade.load_texture("assets/sprites/sprite_2_2.png")
+        self.textures[("corner", (-1,0,0,-1))] = arcade.load_texture("assets/sprites/sprite_2_3.png")
+        self.textures[("tail_h", None)]  = arcade.load_texture("assets/sprites/sprite_3_0.png")
+        self.textures[("tail_v", None)]  = arcade.load_texture("assets/sprites/sprite_3_1.png")
 
         # Initialize the food (rabbit sprite)
         self.food_sprite = arcade.Sprite(
@@ -130,17 +130,16 @@ class GameWindow(arcade.Window):
         self.move_interval = 0.15
 
         # Sound effects & Music
-        self.eat_sound = arcade.load_sound("assets/sounds/chomp_effect.mp3")
+        self.eat_sound        = arcade.load_sound("assets/sounds/chomp_effect.mp3")
         self.background_music = arcade.load_sound("assets/sounds/background_music.mp3")
-        self.level_up_sound = arcade.load_sound("assets/sounds/level_up.mp3")
-        self.level_player = None
-        self.music_player = None
+        self.level_up_sound   = arcade.load_sound("assets/sounds/level_up.mp3")
+        self.level_player     = None
+        self.music_player     = None
 
-
-    # Spawns food at a random unoccupied grid cell
+    # Spawn food at a random unoccupied whole cell
     def place_food(self):
         max_cols = SCREEN_WIDTH // GRID_SIZE
-        max_rows = (SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE - 3
+        max_rows = ((SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE) - 3
 
         while True:
             row = random.randrange(max_rows)
@@ -152,7 +151,6 @@ class GameWindow(arcade.Window):
         x, y = grid_pixel_conversion(self.food_position, GRID_SIZE)
         self.food_sprite.center_x = x
         self.food_sprite.center_y = y
-
 
     # Renders the snake sprites
     def update_segment_sprites(self):
@@ -173,8 +171,8 @@ class GameWindow(arcade.Window):
 
         # Multi-segment load handling with corner segment preloading
         corner_map = {
-            frozenset({(-1,0), (0,1)}): self.textures[("corner", (-1,0,0,1))],
-            frozenset({(1,0),  (0,1)}): self.textures[("corner", (1,0,0,1))],
+            frozenset({(-1,0), (0,1)}):  self.textures[("corner", (-1,0,0,1))],
+            frozenset({(1,0),  (0,1)}):  self.textures[("corner", (1,0,0,1))],
             frozenset({(1,0),  (0,-1)}): self.textures[("corner", (1,0,0,-1))],
             frozenset({(-1,0), (0,-1)}): self.textures[("corner", (-1,0,0,-1))],
         }
@@ -212,7 +210,6 @@ class GameWindow(arcade.Window):
             sprite.center_y = y
             self.segment_sprites.append(sprite)
 
-
     # Draws grid, food, and snake for each frame
     def on_draw(self):
         # Draws start screen
@@ -224,7 +221,7 @@ class GameWindow(arcade.Window):
             return
 
         self.clear()
-        rows = (SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE - 3
+        rows = ((SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE) - 3
         cols = SCREEN_WIDTH // GRID_SIZE
 
         # Draws grass for empty cells
@@ -251,11 +248,13 @@ class GameWindow(arcade.Window):
             color=arcade.color.BLACK
         )
 
-        # Updates and draws score and level, draws the level up banner
+        # Updates and draws score and level
         self.score_text.text = f"Score: {self.score}"
         self.level_text.text = f"Level: {self.level}"
         self.score_text.draw()
         self.level_text.draw()
+
+        # Draws level-up banner if needed
         if self.show_level_banner:
             self.level_banner_text.text = f"Level {self.level}"
             self.level_banner_text.draw()
@@ -264,7 +263,6 @@ class GameWindow(arcade.Window):
         if self.game_state == "GAME_OVER":
             self.game_over_text.draw()
             self.restart_text.draw()
-
 
     # Moves the snake and updates segment sprites
     def on_update(self, delta_time):
@@ -288,18 +286,10 @@ class GameWindow(arcade.Window):
 
         # Checks for wall collision
         head_row, head_col = self.snake.segments[0]
-        head_x, head_y = grid_pixel_conversion((head_row, head_col), GRID_SIZE)
+        cols = SCREEN_WIDTH // GRID_SIZE
+        rows = (SCREEN_HEIGHT - TOP_MARGIN) // GRID_SIZE - 3
 
-        if head_y + (GRID_SIZE / 2) >= (SCREEN_HEIGHT - TOP_MARGIN):
-            self.game_state = "GAME_OVER"
-            if self.music_player:
-                self.music_player.pause()
-                self.music_player = None
-            return
-
-        if (head_x - (GRID_SIZE / 2) < 0
-            or head_x + (GRID_SIZE / 2) > SCREEN_WIDTH
-            or head_y - (GRID_SIZE / 2) < TOP_MARGIN):
+        if head_row < 0 or head_row >= rows or head_col < 0 or head_col >= cols:
             self.game_state = "GAME_OVER"
             if self.music_player:
                 self.music_player.pause()
@@ -314,7 +304,7 @@ class GameWindow(arcade.Window):
                 self.music_player = None
             return
 
-        # Checks if score meets or exceeds the next level threshold, increases snake speed and displays level banner for new levels
+        # Check if score meets or exceeds the next level threshold, increase speed & show banner
         if (self.score >= self.next_level_threshold
             and not self.show_level_banner):
             self.level += 1
@@ -326,7 +316,7 @@ class GameWindow(arcade.Window):
 
             self.show_level_banner = True
             self.level_banner_timer = 0.0
-            arcade.play_sound(self.level_up_sound)
+            self.level_player = arcade.play_sound(self.level_up_sound)
 
         self.update_segment_sprites()
 
@@ -335,12 +325,17 @@ class GameWindow(arcade.Window):
             self.level_banner_timer += delta_time
             if self.level_banner_timer >= self.level_banner_duration:
                 self.show_level_banner = False
- 
+
+                # Stops level-up sound
                 if self.level_player:
-                    self.level_player.stop()
+                    try:
+                        self.level_player.stop()
+                    except AttributeError:
+                        pass
                     self.level_player = None
 
-                self.music_player = arcade.play_sound(self.background_music, loop=True)
+                # Restarts background music
+                self.music_player = arcade.play_sound(self.background_music)
 
         if self.game_state == "GAME_OVER":
             if self.music_player:
@@ -369,13 +364,13 @@ class GameWindow(arcade.Window):
         self.show_level_banner = False
         self.level_banner_timer = 0.0
         self.game_state = "PLAY"
-        self.music_player = arcade.play_sound(self.background_music, loop=True)
+        self.music_player = arcade.play_sound(self.background_music)
 
-    # Handles start, reset, or arrow-key, and passes it to the grid and
+    # Handles start, reset, or arrow-key, and passes it to the grid and snake
     def on_key_press(self, key, modifiers):
         if self.game_state == "START" and key == arcade.key.S:
             self.game_state = "PLAY"
-            self.music_player = arcade.play_sound(self.background_music, loop=True)
+            self.music_player = arcade.play_sound(self.background_music)
             return
 
         if self.game_state == "GAME_OVER" and key == arcade.key.R:
@@ -384,7 +379,6 @@ class GameWindow(arcade.Window):
 
         if self.game_state == "PLAY":
             self.snake.change_direction(key)
-
 
 def main():
     window = GameWindow()

@@ -1,5 +1,5 @@
 import unittest
-from src.snake import Snake
+from snake import Snake
 from arcade.key import RIGHT, LEFT, UP, DOWN
 
 class TestSnake(unittest.TestCase):
