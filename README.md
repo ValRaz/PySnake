@@ -4,7 +4,7 @@ I wrote PySnake to deepen my understanding of real-time game loops, sprite handl
 
 PySnake is a classic Snake‐style game where the player controls a snake that moves around a grid, eating “food” (represented by a rabbit sprite) to grow longer. Each time the snake eats, the score increments by one and, at certain score thresholds, the game enters a new level: the snake moves faster, and a “Level X” banner appears briefly. The player steers the snake using the arrow keys. Hitting any wall (or bumping into the snake’s own body) ends the game. At Game Over, the player can press “R” to restart from level 1.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://www.youtube.com/watch?v=oDYSY56p858)
 
 # Development Environment
 
@@ -12,7 +12,7 @@ PySnake is a classic Snake‐style game where the player controls a snake that m
 - **Editor/IDE:** Visual Studio Code (with Python and Pylance extensions)
 - **Version Control:** Git (hosted on GitHub)
 - **Python 3.11**
-- **Arcade 2.7.15**   
+- **Arcade 2.7.15**
 
 {Describe the programming language that you used and any libraries.}
 
@@ -25,6 +25,6 @@ PySnake is a classic Snake‐style game where the player controls a snake that m
 * [Pyglet Sound Documentation](https://pyglet.readthedocs.io/en/latest/programming_guide/media.html)
 
 # Future Work
-* Add a pause screen and “mute” toggle for background music and effects.  
-* Implement high-score tracking and persistent save/load functionality.  
-* Polish level transitions with animated banners or particle effects. 
+* Add a pause screen and “mute” toggle for background music and effects.
+* Implement high-score tracking and persistent save/load functionality.
+* Polish level transitions with animated banners or particle effects.
